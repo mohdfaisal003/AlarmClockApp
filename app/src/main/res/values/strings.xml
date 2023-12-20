@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">ZoptalAlarmClockApp</string>
+
+    <!-- Alarms Activity -->
+    <string name="alarm">Alarm</string>
+
+    <!-- NewAlarmActivity -->
+    <string name="set_new_alarm">Set New Alarm</string>
+    <string name="am">AM</string>
+    <string name="pm">PM</string>
+    <string name="alarm_name">Alarm Name</string>
+    <string name="sound">Sound</string>
+    <string name="default_text">Default</string>
+    <string name="save">Save</string>
+
+    <!-- Toast -->
+    <string name="your_alarm_set">Your alarm will ring after</string>
+</resources>

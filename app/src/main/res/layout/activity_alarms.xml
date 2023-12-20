@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.AlarmsActivity">
+
+    <!-- Toolbar -->
+    <LinearLayout
+        android:id="@+id/toolbarLl"
+        android:layout_width="match_parent"
+        android:layout_height="55sp"
+        android:background="@color/grey_clr"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="20sp"
+        android:paddingRight="20sp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.7"
+            android:elevation="3sp"
+            android:gravity="center"
+            android:text="@string/alarm"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <ImageView
+            android:id="@+id/addBtnIv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:elevation="3sp"
+            android:src="@drawable/draw_add_res" />
+    </LinearLayout>
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/toolbarLl">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false" />
+        </androidx.core.widget.NestedScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+</RelativeLayout>
