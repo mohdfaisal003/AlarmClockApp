@@ -41,6 +41,16 @@ object AlarmUtil {
         return timeZone
     }
 
+    interface AlarmListener {
+        fun onAlarmTrigger(alarmId: Int, time: Long, isCreated: Boolean)
+    }
+
+    var listener: AlarmListener? = null
+
+    fun setAlarmListener(listener: AlarmListener) {
+        this.listener = listener
+    }
+
     fun createNewAlarm(
         context: Context,
         alarmId: Int,
@@ -68,6 +78,7 @@ object AlarmUtil {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager?
         alarmManager?.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
 
+        listener?.onAlarmTrigger(alarmId, calendar.timeInMillis, true)
         showMessage(context, "Alarm Set!")
 
 //        val activity = context as Activity
@@ -80,5 +91,6 @@ object AlarmUtil {
         val pendingIntent =
             PendingIntent.getBroadcast(context, alarmId, intent, PendingIntent.FLAG_MUTABLE)
         pendingIntent?.let { alarmManager?.cancel(it) }
+        listener?.onAlarmTrigger(alarmId, 0, false)
     }
 }

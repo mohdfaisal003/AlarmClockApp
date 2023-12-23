@@ -13,9 +13,10 @@ import com.zoptal.alarmclock.databinding.ActivityAlarmsBinding
 import com.zoptal.alarmclock.databinding.RvAlarmItemBinding
 import com.zoptal.alarmclock.mvvm.AlarmViewModel
 import com.zoptal.alarmclock.room.AlarmEntity
+import com.zoptal.alarmclock.utils.AlarmUtil
 import com.zoptal.alarmclock.utils.AppUtils.jumpToActivity
 
-class AlarmsActivity : AppBaseActivity() {
+class AlarmsActivity : AppBaseActivity(), AlarmUtil.AlarmListener {
 
     private lateinit var binding: ActivityAlarmsBinding
     lateinit var adapter: AlarmAdapter
@@ -30,13 +31,9 @@ class AlarmsActivity : AppBaseActivity() {
         binding.addBtnIv.setOnClickListener {
             jumpToActivity(this, NewAlarmActivity::class.java)
         }
+
         setRecyclerView()
-        binding.swipeRefresh.setOnRefreshListener {
-            setRecyclerView()
-            Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                binding.swipeRefresh.isRefreshing = false
-            }, 2000)
-        }
+        AlarmUtil.setAlarmListener(this)
     }
 
     private fun setRecyclerView() {
@@ -69,5 +66,9 @@ class AlarmsActivity : AppBaseActivity() {
                 alarmViewModel.updateAlarm(this, alarmEntity)
             }
         }
+    }
+
+    override fun onAlarmTrigger(alarmId: Int, time: Long, isCreated: Boolean) {
+        setRecyclerView()
     }
 }

@@ -4,18 +4,25 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.BroadcastReceiver
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
-import android.media.Ringtone
+import android.database.Cursor
+import android.graphics.Color
+import android.media.AudioAttributes
+import android.media.MediaPlayer
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
-import android.os.Looper
+import android.provider.MediaStore
+import android.provider.Settings
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import java.io.IOException
 
 class AlarmReceiver : BroadcastReceiver() {
+
     override fun onReceive(context: Context?, intent: Intent?) {
         val message = intent?.getStringExtra("message")
         val ringtoneUriString = intent?.getStringExtra("ringtone")
@@ -29,6 +36,12 @@ class AlarmReceiver : BroadcastReceiver() {
         ringtoneUri: Uri
     ) {
 
+        Settings.System.putString(
+            context?.applicationContext?.getContentResolver(),
+            Settings.System.NOTIFICATION_SOUND,
+            ringtoneUri.toString()
+        );
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 "default_channel_id", "Zoptal Notifications",
@@ -38,8 +51,6 @@ class AlarmReceiver : BroadcastReceiver() {
             notificationManager?.createNotificationChannel(channel)
         }
 
-        val soundUri: Ringtone = RingtoneManager.getRingtone(context, ringtoneUri)
-        soundUri.play()
         val notification: Notification = NotificationCompat.Builder(context!!, "default_channel_id")
             .setContentTitle(title)
             .setContentText(description)
@@ -47,14 +58,7 @@ class AlarmReceiver : BroadcastReceiver() {
             .setAutoCancel(true)
             .build()
 
-
         val notificationManager = context?.getSystemService(NotificationManager::class.java)
         notificationManager?.notify(1, notification)
-
-        Handler(Looper.getMainLooper()).postDelayed(Runnable {
-              if (soundUri.isPlaying) {
-                  soundUri.stop()
-              }
-        },10L)
     }
 }

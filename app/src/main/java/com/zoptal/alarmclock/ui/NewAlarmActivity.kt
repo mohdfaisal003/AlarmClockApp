@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -151,10 +152,12 @@ class NewAlarmActivity : AppBaseActivity() {
     private val pushNotificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted)
-                AlarmUtil.createNewAlarm(
-                    this, Random.nextInt(), hour, minute, am_pm,
-                    binding.alarmNameEt.text.toString(), selectedRingtone!!
-                )
+                if (selectedRingtone != null) {
+                    AlarmUtil.createNewAlarm(
+                        this, Random.nextInt(), hour, minute, am_pm,
+                        binding.alarmNameEt.text.toString(), selectedRingtone!!
+                    )
+                }
         }
 
     private val getContent =
@@ -165,8 +168,8 @@ class NewAlarmActivity : AppBaseActivity() {
                     val pickedUri =
                         data.getParcelableExtra<Uri>(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
                     selectedRingtone = pickedUri
-                    val ringtoneManager = RingtoneManager.getRingtone(this, selectedRingtone)
-                    binding.ringtoneTv.text = ringtoneManager.getTitle(this)
+                    binding.ringtoneTv.text =
+                        RingtoneManager.getRingtone(this, selectedRingtone).getTitle(this)
                 } else {
                     selectedRingtone = null
                 }
@@ -174,13 +177,21 @@ class NewAlarmActivity : AppBaseActivity() {
         }
 
     private fun selectRingtone() {
-        val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
-        intent.putExtra(
-            RingtoneManager.EXTRA_RINGTONE_TYPE,
-            RingtoneManager.TYPE_ALARM
-        )
-        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, selectedRingtone)
-        getContent.launch(intent)
+        // Check if the WRITE_SETTINGS permission is not granted
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.System.canWrite(this)) {
+            // If not, request the permission from the user
+            val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
+            intent.data = Uri.parse("package:" + packageName)
+            startActivity(intent)
+        } else {
+            val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
+            intent.putExtra(
+                RingtoneManager.EXTRA_RINGTONE_TYPE,
+                RingtoneManager.TYPE_ALARM
+            )
+            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, selectedRingtone)
+            getContent.launch(intent)
+        }
     }
 
     override fun onDestroy() {

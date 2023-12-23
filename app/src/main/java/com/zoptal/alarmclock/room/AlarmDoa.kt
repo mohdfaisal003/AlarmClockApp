@@ -12,8 +12,8 @@ interface AlarmDoa {
     @Query("SELECT * from alarmentity")
     fun alarmList(): List<AlarmEntity>
 
-    @Insert
-    fun createAlarm(alarmEntity: AlarmEntity)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun createAlarm(vararg alarmEntity: AlarmEntity)
 
     @Update
     fun updateAlarm(alarmEntity: AlarmEntity)

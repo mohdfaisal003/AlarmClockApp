@@ -10,13 +10,13 @@ import com.zoptal.alarmclock.databinding.RvAlarmItemBinding
 import com.zoptal.alarmclock.listeners.RecyclerListener
 import com.zoptal.alarmclock.room.AlarmEntity
 
-class AlarmAdapter(var context: Context): Adapter<AlarmAdapter.ViewHolder>() {
+class AlarmAdapter(var context: Context) : Adapter<AlarmAdapter.ViewHolder>() {
 
     private lateinit var binding: RvAlarmItemBinding
     private var listener: RecyclerListener? = null
     private var alarmsList = ArrayList<AlarmEntity>()
 
-    constructor(context: Context,alarmsList: List<AlarmEntity>) : this(context) {
+    constructor(context: Context, alarmsList: List<AlarmEntity>) : this(context) {
         this.alarmsList.addAll(alarmsList)
     }
 
@@ -34,10 +34,10 @@ class AlarmAdapter(var context: Context): Adapter<AlarmAdapter.ViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        listener?.onRecycleCreated(binding,position)
+        listener?.onRecycleCreated(binding, position)
     }
 
-    class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
     }
 }
