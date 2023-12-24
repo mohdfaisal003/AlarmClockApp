@@ -1,8 +1,6 @@
 package com.zoptal.alarmclock.ui
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import androidx.activity.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -11,8 +9,8 @@ import com.zoptal.alarmclock.adapters.AlarmAdapter
 import com.zoptal.alarmclock.appbase.AppBaseActivity
 import com.zoptal.alarmclock.databinding.ActivityAlarmsBinding
 import com.zoptal.alarmclock.databinding.RvAlarmItemBinding
+import com.zoptal.alarmclock.mvvm.AlarmEntity
 import com.zoptal.alarmclock.mvvm.AlarmViewModel
-import com.zoptal.alarmclock.room.AlarmEntity
 import com.zoptal.alarmclock.utils.AlarmUtil
 import com.zoptal.alarmclock.utils.AppUtils.jumpToActivity
 
@@ -40,9 +38,10 @@ class AlarmsActivity : AppBaseActivity(), AlarmUtil.AlarmListener {
         alarmViewModel.getAllAlarms(this)
         alarmViewModel.selectAllAlarms.observe(this, Observer {
             if (it.isNotEmpty()) {
-                alarmsList = it
+                alarmsList = it as ArrayList<AlarmEntity>
                 binding.recyclerView.layoutManager =
                     LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true)
+                binding.recyclerView.itemAnimator = null
                 adapter = AlarmAdapter(this, alarmsList)
                 adapter.setRecyclerListener(this)
                 binding.recyclerView.adapter = adapter
@@ -53,7 +52,8 @@ class AlarmsActivity : AppBaseActivity(), AlarmUtil.AlarmListener {
     override fun onRecycleCreated(binding: ViewBinding, position: Int) {
         val bind = binding as RvAlarmItemBinding
         val alarmEntity = alarmsList[position]
-        bind.timeTv.text = "${alarmEntity.hour}:${alarmEntity.minute}"
+
+        bind.timeTv.text = AlarmUtil.get12HourTime(alarmEntity.hour,alarmEntity.minute)
         bind.amPmTv.text = "${if (alarmEntity.am_pm == 0) "AM" else "PM"}"
         bind.switchId.isChecked = alarmEntity.isEnable
 
@@ -65,10 +65,14 @@ class AlarmsActivity : AppBaseActivity(), AlarmUtil.AlarmListener {
                 alarmEntity.isEnable = true
                 alarmViewModel.updateAlarm(this, alarmEntity)
             }
+            adapter.notifyDataSetChanged()
+            adapter.notifyItemChanged(position)
         }
     }
 
     override fun onAlarmTrigger(alarmId: Int, time: Long, isCreated: Boolean) {
-        setRecyclerView()
+        if (isCreated) {
+            setRecyclerView()
+        }
     }
 }

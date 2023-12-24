@@ -58,4 +58,7 @@ dependencies {
     implementation("androidx.fragment:fragment-ktx:1.6.2")
     implementation("androidx.activity:activity-ktx:1.8.2")
     implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
+
+    /* Gson */
+    implementation("com.google.code.gson:gson:2.8.8")
 }

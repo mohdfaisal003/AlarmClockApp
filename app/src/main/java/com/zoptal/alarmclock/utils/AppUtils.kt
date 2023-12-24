@@ -6,12 +6,12 @@ import android.widget.Toast
 
 object AppUtils {
 
-    fun jumpToActivity(context: Context,activityClass: Class<*>) {
-        val intent = Intent(context,activityClass)
+    fun jumpToActivity(context: Context, activityClass: Class<*>) {
+        val intent = Intent(context, activityClass)
         context.startActivity(intent)
     }
 
-    fun showMessage(context: Context,message: String) {
-        Toast.makeText(context,message, Toast.LENGTH_SHORT).show()
+    fun showMessage(context: Context, message: String) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 }

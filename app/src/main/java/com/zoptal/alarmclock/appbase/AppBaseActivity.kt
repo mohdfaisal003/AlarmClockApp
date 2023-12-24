@@ -8,11 +8,9 @@ import com.zoptal.alarmclock.listeners.RecyclerListener
 
 abstract class AppBaseActivity : AppCompatActivity(), OnClickListener, RecyclerListener {
 
-    override fun onClick(view: View?) {
-        /* Do your work */
+    override fun onClick(view: View?) {/* Do your work */
     }
 
-    override fun onRecycleCreated(binding: ViewBinding, position: Int) {
-        /* Do your work */
+    override fun onRecycleCreated(binding: ViewBinding, position: Int) {/* Do your work */
     }
 }

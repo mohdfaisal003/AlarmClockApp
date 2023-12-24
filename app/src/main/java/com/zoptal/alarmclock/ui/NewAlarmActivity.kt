@@ -10,7 +10,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.provider.Settings
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -19,8 +18,8 @@ import androidx.core.content.ContextCompat
 import com.zoptal.alarmclock.R
 import com.zoptal.alarmclock.appbase.AppBaseActivity
 import com.zoptal.alarmclock.databinding.ActivityNewAlarmBinding
+import com.zoptal.alarmclock.mvvm.AlarmEntity
 import com.zoptal.alarmclock.mvvm.AlarmViewModel
-import com.zoptal.alarmclock.room.AlarmEntity
 import com.zoptal.alarmclock.utils.AlarmUtil
 import com.zoptal.alarmclock.utils.AlarmUtil.get12HourTime
 import com.zoptal.alarmclock.utils.AlarmUtil.getCurrentTime
@@ -34,14 +33,14 @@ class NewAlarmActivity : AppBaseActivity() {
 
     private lateinit var binding: ActivityNewAlarmBinding
     private val handler = Handler(Looper.getMainLooper())
-    private var runnable: Runnable? = null;
+    private var runnable: Runnable? = null
 
     private val calendar: Calendar = Calendar.getInstance()
     private var hour = calendar.get(Calendar.HOUR_OF_DAY)
     private var minute = calendar.get(Calendar.MINUTE)
     private var am_pm = calendar.get(Calendar.AM_PM)
 
-    private var selectedRingtone: Uri? = null
+    private var selectedRingtone: Uri? = AlarmUtil.getCurrentAlarmTone()
 
     private val alarmViewModel by viewModels<AlarmViewModel>()
 
@@ -79,8 +78,7 @@ class NewAlarmActivity : AppBaseActivity() {
             binding.saveBtn.id -> {
                 when (PackageManager.PERMISSION_GRANTED) {
                     ContextCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.POST_NOTIFICATIONS
+                        this, Manifest.permission.POST_NOTIFICATIONS
                     ) -> {
                         if (calendar.timeInMillis == System.currentTimeMillis()) {
                             showMessage(this, "Please choose some other time")
@@ -88,22 +86,8 @@ class NewAlarmActivity : AppBaseActivity() {
                         } else if (binding.alarmNameEt.text.toString().isEmpty()) {
                             showMessage(this, "Please write a message for alarm")
                             return
-                        } else if (selectedRingtone == null) {
-                            showMessage(this, "Please select a ringtone")
-                            return
                         } else {
-                            val alarmEntity = AlarmEntity(
-                                0,
-                                hour,
-                                minute,
-                                am_pm,
-                                Calendar.getInstance().get(Calendar.DATE),
-                                selectedRingtone.toString(),
-                                Random.nextInt(1000),
-                                binding.alarmNameEt.text.toString(),
-                                true
-                            )
-                            alarmViewModel.insertAlarm(this, alarmEntity)
+                            setNewAlarm()
                         }
                     }
 
@@ -131,18 +115,29 @@ class NewAlarmActivity : AppBaseActivity() {
         }
     }
 
+    private fun setNewAlarm() {
+        val alarmEntity = AlarmEntity(
+            0,
+            hour,
+            minute,
+            am_pm,
+            Calendar.getInstance().get(Calendar.DATE),
+            selectedRingtone.toString(),
+            Random.nextInt(1000),
+            binding.alarmNameEt.text.toString(),
+            true
+        )
+        alarmViewModel.insertAlarm(this, alarmEntity)
+    }
+
     private fun showTimePicker() {
         val timePickerDialog = TimePickerDialog(
-            this,
-            { _, selectedHour, selectedMinute ->
+            this, { picker, selectedHour, selectedMinute ->
                 hour = getHour(selectedHour)
                 minute = selectedMinute
                 binding.timeTv.text = get12HourTime(selectedHour, selectedMinute)
                 runnable?.let { handler.removeCallbacks(it) }
-            },
-            hour,
-            minute,
-            false
+            }, hour, minute, false
         )
 
         timePickerDialog.setTitle("Select Time")
@@ -151,13 +146,9 @@ class NewAlarmActivity : AppBaseActivity() {
 
     private val pushNotificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (granted)
-                if (selectedRingtone != null) {
-                    AlarmUtil.createNewAlarm(
-                        this, Random.nextInt(), hour, minute, am_pm,
-                        binding.alarmNameEt.text.toString(), selectedRingtone!!
-                    )
-                }
+            if (granted) if (selectedRingtone != null) {
+                setNewAlarm()
+            }
         }
 
     private val getContent =
@@ -178,20 +169,12 @@ class NewAlarmActivity : AppBaseActivity() {
 
     private fun selectRingtone() {
         // Check if the WRITE_SETTINGS permission is not granted
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.System.canWrite(this)) {
-            // If not, request the permission from the user
-            val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS)
-            intent.data = Uri.parse("package:" + packageName)
-            startActivity(intent)
-        } else {
-            val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
-            intent.putExtra(
-                RingtoneManager.EXTRA_RINGTONE_TYPE,
-                RingtoneManager.TYPE_ALARM
-            )
-            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, selectedRingtone)
-            getContent.launch(intent)
-        }
+        val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
+        intent.putExtra(
+            RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM
+        )
+        intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, selectedRingtone)
+        getContent.launch(intent)
     }
 
     override fun onDestroy() {

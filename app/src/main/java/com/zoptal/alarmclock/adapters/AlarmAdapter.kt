@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import com.zoptal.alarmclock.databinding.RvAlarmItemBinding
 import com.zoptal.alarmclock.listeners.RecyclerListener
-import com.zoptal.alarmclock.room.AlarmEntity
+import com.zoptal.alarmclock.mvvm.AlarmEntity
 
 class AlarmAdapter(var context: Context) : Adapter<AlarmAdapter.ViewHolder>() {
 
@@ -37,7 +37,5 @@ class AlarmAdapter(var context: Context) : Adapter<AlarmAdapter.ViewHolder>() {
         listener?.onRecycleCreated(binding, position)
     }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
-    }
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 }
